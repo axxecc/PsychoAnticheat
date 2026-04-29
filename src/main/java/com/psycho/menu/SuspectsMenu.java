@@ -5,6 +5,7 @@ import com.psycho.checks.Check;
 import com.psycho.checks.impl.combat.aim.ml.AimAssistML;
 import com.psycho.player.PsychoPlayer;
 import com.psycho.utils.Hex;
+import com.psycho.utils.Logger;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

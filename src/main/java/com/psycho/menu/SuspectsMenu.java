@@ -70,10 +70,10 @@ public class SuspectsMenu implements Listener {
             renderLoadingState();
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getScheduler().runAsync(() -> {
             List<SuspectEntry> suspects = buildSuspectEntries(snapshots);
 
-            Bukkit.getScheduler().runTask(plugin, () -> {
+            plugin.getScheduler().runSync(() -> {
                 if (closed || requestId != refreshSequence || !admin.isOnline()) {
                     return;
                 }
@@ -362,7 +362,6 @@ public class SuspectsMenu implements Listener {
 
         if (event.isRightClick()) {
             admin.setGameMode(GameMode.SPECTATOR);
-            admin.teleport(target);
             admin.sendMessage(color(plugin.getConfigService().getString(
                     "menu.suspects.suspects-spectate",
                     "{prefix} #ffe1c9Now spectating #ff4500{player}"
@@ -393,7 +392,7 @@ public class SuspectsMenu implements Listener {
 
         Location soundLoc = target.getLocation();
 
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        plugin.getScheduler().runSync(() -> {
             World world = soundLoc.getWorld();
             if (world != null) {
                 world.playSound(soundLoc, Sound.ENTITY_GENERIC_EXPLODE, 1, 1);

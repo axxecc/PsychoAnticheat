@@ -7,6 +7,8 @@ import com.psycho.hologram.Holograms;
 import com.psycho.listeners.CheckListener;
 import com.psycho.listeners.ConnectionListener;
 import com.psycho.player.PsychoPlayer;
+import com.psycho.scheduler.PlatformDetector;
+import com.psycho.scheduler.impl.PlatformScheduler;
 import com.psycho.services.CheckService;
 import com.psycho.services.CommandService;
 import com.psycho.services.ConfigService;
@@ -14,6 +16,7 @@ import com.psycho.services.MlModelService;
 import com.psycho.services.PlayerTrackerService;
 import com.psycho.utils.Logger;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,14 +26,20 @@ import java.util.Objects;
 
 public final class Psycho extends JavaPlugin {
     private static Psycho instance;
+    @Getter
     private ConnectionListener connectionListener;
+    @Getter
     private CheckService checkService;
+    @Getter
     private ConfigService configService;
     private CommandService commandService;
+    @Getter
     private PlayerTrackerService playerTrackerService;
     private CheckListener checkListener;
     private Holograms holograms;
+    @Getter
     private MlModelService mlModelService;
+    private PlatformDetector scheduler;
 
     public static Psycho get() {
         return instance;
@@ -38,6 +47,7 @@ public final class Psycho extends JavaPlugin {
 
     private void create() {
         instance = this;
+        scheduler = new PlatformDetector(this);
         connectionListener = new ConnectionListener();
         checkService = new CheckService();
         configService = new ConfigService(this);
@@ -71,7 +81,9 @@ public final class Psycho extends JavaPlugin {
         // reg. packetevents listeners
         PacketEvents.getAPI().getEventManager().registerListener(checkListener, PacketListenerPriority.NORMAL);
 
-        getServer().dispatchCommand(getServer().getConsoleSender(), "psycho reload");
+        getServer().getGlobalRegionScheduler().run(this, task-> {
+            getServer().dispatchCommand(getServer().getConsoleSender(), "psycho reload");
+        });
 
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (connectionListener.getPlayer(online.getUniqueId()) == null) {
@@ -131,33 +143,20 @@ public final class Psycho extends JavaPlugin {
         } catch (Exception e) {
             Logger.log("Error terminating PacketEvents: " + e.getMessage());
         }
+        if (scheduler != null) {
+            scheduler.getScheduler().cancelTasks(this);
+        }
     }
 
     public MessagesCfg getMessagesCfg() {
         return configService.getMessagesCfg();
     }
 
-    public CheckService getCheckService() {
-        return checkService;
-    }
-
-    public ConfigService getConfigService() {
-        return configService;
-    }
-
-    public ConnectionListener getConnectionListener() {
-        return connectionListener;
-    }
-
     public Holograms getNametagManager() {
         return holograms;
     }
 
-    public PlayerTrackerService getPlayerTrackerService() {
-        return playerTrackerService;
-    }
-
-    public MlModelService getMlModelService() {
-        return mlModelService;
+    public PlatformScheduler getScheduler() {
+        return scheduler.getScheduler();
     }
 }

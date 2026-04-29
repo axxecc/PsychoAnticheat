@@ -2,6 +2,7 @@ package com.psycho.commands;
 
 import com.psycho.Psycho;
 import com.psycho.player.PsychoPlayer;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -27,7 +28,12 @@ public class AlertsCommand implements SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        Player player = (Player) sender;
+
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(ChatColor.RED + "Only players can execute this command.");
+            return;
+        }
+
         PsychoPlayer psychoPlayer = plugin.getConnectionListener().getPlayer(player.getUniqueId());
 
         if (psychoPlayer == null) {

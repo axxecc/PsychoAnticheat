@@ -6,14 +6,18 @@ import com.psycho.cfg.CheckCfg;
 import com.psycho.player.PsychoPlayer;
 import com.psycho.utils.Hex;
 import com.psycho.utils.Logger;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public abstract class Check {
     protected final PsychoPlayer player;
-    private final Psycho plugin;
+    public final Psycho plugin;
+    @Getter
     private final String name;
+    @Getter
     private final CheckCfg cfg;
+    @Getter
     private final String cfgPath;
     private long lastVlDecayTime;
     private long lastFlagTime;
@@ -100,12 +104,11 @@ public abstract class Check {
             Logger.log("executing punishment");
             Player bukkitPlayer = player.getBukkitPlayer();
             plugin.getConnectionListener().removePlayer(bukkitPlayer.getUniqueId());
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                        Bukkit.dispatchCommand(plugin.getServer().getConsoleSender(),
-                                cfg.punishCommand().replace("{player}", bukkitPlayer.getName()));
-                        Logger.log("§a✓ " + player.getBukkitPlayer().getName() + " punished");
-                    }
-            );
+            plugin.getScheduler().runSync(() -> {
+                Bukkit.dispatchCommand(plugin.getServer().getConsoleSender(),
+                        cfg.punishCommand().replace("{player}", bukkitPlayer.getName()));
+                Logger.log("§a✓ " + player.getBukkitPlayer().getName() + " punished");
+            });
         }
 
         String message = Hex.translateHexColors(plugin.getMessagesCfg().formatAlert(
@@ -135,8 +138,8 @@ public abstract class Check {
         if (bukkitPlayer == null || !bukkitPlayer.isOnline()) return;
 
         if (player.getLastSafeLocation() != null) {
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                bukkitPlayer.teleport(player.getLastSafeLocation());
+            plugin.getScheduler().runSync(() -> {
+                plugin.getScheduler().teleportAsync(bukkitPlayer, player.getLastSafeLocation());
             });
         }
     }
@@ -145,15 +148,4 @@ public abstract class Check {
         player.setHitCancelTicks(40);
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public CheckCfg getCfg() {
-        return cfg;
-    }
-
-    public String getCfgPath() {
-        return cfgPath;
-    }
 }

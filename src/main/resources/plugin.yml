@@ -7,6 +7,7 @@ authors: [ Rukzell ]
 description: Anticheat
 depend:
   - packetevents
+folia-supported: true
 commands:
   psycho:
     description: TornadoAnticheat main command

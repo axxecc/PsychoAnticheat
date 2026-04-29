@@ -64,12 +64,15 @@ public class NoSlow extends Check {
 
             threshold *= speedMultiplier;
 
-            if (isOnIce()) {
-                threshold = 0.2;
-                if (Math.abs(yd) > 0.01) {
-                    threshold = 0.5;
+            Location loc = player.getBukkitPlayer().getLocation();
+            plugin.getScheduler().runAtLocation(loc, () -> {
+                if (isOnIce(loc)) {
+                    threshold = 0.2;
+                    if (Math.abs(yd) > 0.01) {
+                        threshold = 0.5;
+                    }
                 }
-            }
+            });
 
             if (player.getBukkitPlayer().isHandRaised()) {
                 if (!usingItem) {
@@ -92,8 +95,7 @@ public class NoSlow extends Check {
         }
     }
 
-    private boolean isOnIce() {
-        Location loc = player.getBukkitPlayer().getLocation();
+    private boolean isOnIce(Location loc) {
         var world = loc.getWorld();
         if (world == null) return false;
 

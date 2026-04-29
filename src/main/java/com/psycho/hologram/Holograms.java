@@ -16,6 +16,7 @@ import com.psycho.Psycho;
 import com.psycho.checks.Check;
 import com.psycho.checks.impl.combat.aim.ml.AimAssistML;
 import com.psycho.player.PsychoPlayer;
+import com.psycho.scheduler.task.WrappedTask;
 import com.psycho.utils.Hex;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -24,7 +25,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,7 +42,7 @@ public class Holograms extends PacketListenerAbstract implements Listener {
     private final Map<UUID, String> lastSentText = new ConcurrentHashMap<>();
     private final Map<UUID, Set<UUID>> viewersMap = new ConcurrentHashMap<>();
 
-    private BukkitTask task;
+    private WrappedTask task;
     private int cleanupCounter = 0;
 
     public Holograms(Psycho plugin) {
@@ -54,7 +54,7 @@ public class Holograms extends PacketListenerAbstract implements Listener {
         PacketEvents.getAPI().getEventManager().registerListener(this);
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
-        task = Bukkit.getScheduler().runTaskTimer(plugin, this::globalTick, 1L, 1L);
+        task = plugin.getScheduler().runSyncTimer(this::globalTick, 1L, 1L);
     }
 
     public void stop() {

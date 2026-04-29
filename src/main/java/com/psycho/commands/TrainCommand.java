@@ -61,7 +61,7 @@ public class TrainCommand implements SubCommand {
         sender.sendMessage("§eStarting GRU training...");
         sender.sendMessage("§7Epochs: §f" + finalEpochs + " §7| LR: §f" + finalLr);
 
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getScheduler().runAsync(() -> {
             try {
                 File dir = new File(plugin.getDataFolder(), "ml");
                 File file = new File(dir, "dataset.csv");

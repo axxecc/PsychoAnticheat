@@ -399,7 +399,7 @@ public class SuspectsMenu implements Listener {
             }
         });
 
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), punishCommand);
+        plugin.getScheduler().runSync(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), punishCommand));
 
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (online.hasPermission("psycho.alerts")) {
